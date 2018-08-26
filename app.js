@@ -4,7 +4,7 @@ var io = require("socket.io")(http);
 var players = [];
 
 app.get("/", function(req, res) {
-    res.send("<h1>Hello, World</h1>");
+    res.send("<h1>Welcome to the Monopoly Deal server page.</h1>");
 });
 
 io.on('connection', function(socket) {
