@@ -2,7 +2,9 @@ var app = require("express")();
 var http = require("http").Server(app);
 var io = require("socket.io")(http);
 var players = [];
+var clients = [];
 var deck = [];
+numOfPlayersToStart = 2;
 
 app.get("/", function(req, res) {
     res.send("<h1>Welcome to the Monopoly Deal server page.</h1>");
@@ -11,30 +13,26 @@ app.get("/", function(req, res) {
 io.on('connection', function(socket) {
     socket.on("disconnect", function(player) {
         console.log("Player left.");
-        //io.emit('player-left', {player: name, event: 'left'});
         players = [];
     });
 
     socket.on('player-entered', function(player) {
-        console.log("Player has entered:");
-        console.log(player.firstName + " " + player.lastName);
+        console.log("Player has entered: " + player.firstName + " " + player.lastName);
         players.push(player);
+        clients.push(socket);
         if (players.length == 1) {
-            // First player creates the deck
-            console.log("Asking first player to create a deck");
             io.emit('create-deck');
         }
         if (players.length > 1) {
             io.emit('new-player', {players: players});
-            console.log("Emitting new deck to all");
             io.emit('deck-change', { deck: deck });
         }
+        socket.emit('pick-up-cards', {amount: 5, player: player});
     });
 
-    socket.on('new-deck', function(cards) {
+    socket.on('new-deck', function(deckObject) {
         console.log("New deck!");
-        deck = cards;
-        console.log("Emitting new deck to all");
+        deck = deckObject;
         io.emit('deck-change', { deck: deck });
     });
 });
