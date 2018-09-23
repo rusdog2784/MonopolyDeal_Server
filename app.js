@@ -35,6 +35,26 @@ io.on('connection', function(socket) {
         deck = deckObject;
         io.emit('deck-change', { deck: deck });
     });
+
+    socket.on('action-card', function(data) {
+        var card = data['card'];
+        var player = data['player'];
+        console.log("Card played: " + card);
+        console.log("By " + player);
+        io.emit('action-card-played', {card: card, player: player});
+    });
+
+    socket.on('property-card', function(card, player) {
+        console.log("Card played: " + card);
+        console.log("By " + player);
+        io.emit('property-card-played', {card: card, player: player});
+    });
+
+    socket.on('money-card', function(card, player) {
+        console.log("Card played: " + card);
+        console.log("By " + player);
+        io.emit('money-card-played', {card: card, player: player});
+    });
 });
 
 http.listen(9000, function() {
