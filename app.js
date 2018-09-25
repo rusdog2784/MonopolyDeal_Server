@@ -26,9 +26,9 @@ io.on('connection', function(socket) {
         } else {
             socket.emit('updated-deck', { deck: deck });
             socket.emit('initial-cards', {amount: 5, player: player});
-            io.emit('players', { players: players });
             console.log("Enough players, " + players[0].firstName + " goes first.");
             clients[0].emit('my-turn');
+            io.emit('players', { players: players });
         }
     });
 
