@@ -14,6 +14,8 @@ io.on('connection', function(socket) {
     socket.on("disconnect", function(player) {
         console.log("Player left.");
         players = [];
+        clients = [];
+        //socket.disconnect(1);
     });
 
     socket.on('player-entered', function(player) {
@@ -27,8 +29,10 @@ io.on('connection', function(socket) {
             socket.emit('updated-deck', { deck: deck });
             socket.emit('initial-cards', {amount: 5, player: player});
             console.log("Enough players, " + players[0].firstName + " goes first.");
-            clients[0].emit('my-turn');
             io.emit('players', { players: players });
+            setTimeout(function() {
+                clients[0].emit('my-turn');
+            }, 3000);
         }
     });
 
@@ -41,24 +45,45 @@ io.on('connection', function(socket) {
     socket.on('action-card', function(data) {
         var card = data['card'];
         var player = data['player'];
-        console.log("Card played: " + card.title);
-        console.log("By " + player.firstName);
+        console.log("Action Card Played: " + card.title);
+        console.log("Description: " + card.description);
+        console.log("Played By: " + player.firstName + " (" + player.id + ")");
         socket.broadcast.emit('action-card-played', {card: card, player: player});
+    });
+
+    socket.on('rent-card', function(data) {
+        var card = data['card'];
+        var player = data['player'];
+        console.log("Rent Card Played: " + card.title);
+        console.log("Played By: " + player.firstName + " (" + player.id + ")");
+        socket.broadcast.emit('rent-card-played', {card: card, player: player});
     });
 
     socket.on('property-card', function(data) {
         var card = data['card'];
         var player = data['player'];
-        console.log("Card played: " + card.title);
-        console.log("By " + player.firstName);
+        console.log("Property Card Played: " + card.title);
+        console.log("Property: :" + card.propertyTypes[0]);
+        console.log("Played By: " + player.firstName + " (" + player.id + ")");
+        socket.broadcast.emit('property-card-played', {card: card, player: player});
+    });
+
+    socket.on('wildcard-card', function(data) {
+        var card = data['card'];
+        var player = data['player'];
+        var propertyChosen = data['propertyChosen'];
+        console.log("Property Card Played: " + card.title);
+        console.log("Property Chosen: :" + propertyChosen);
+        console.log("Played By: " + player.firstName + " (" + player.id + ")");
         socket.broadcast.emit('property-card-played', {card: card, player: player});
     });
 
     socket.on('money-card', function(data) {
         var card = data['card'];
         var player = data['player'];
-        console.log("Card played: " + card.title);
-        console.log("By " + player.firstName);
+        console.log("Money Card Played: " + card.title);
+        console.log("Value: " + card.value);
+        console.log("Played By: " + player.firstName + " (" + player.id + ")");
         socket.broadcast.emit('money-card-played', {card: card, player: player});
     });
 
