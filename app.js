@@ -31,8 +31,8 @@ io.on('connection', function(socket) {
             console.log("Enough players, " + players[0].firstName + " goes first.");
             io.emit('players', { players: players });
             setTimeout(function() {
-                clients[0].emit('my-turn');
-            }, 3000);
+                clients[0].emit('my-turn', { updatedPlayer: undefined });
+            }, 2000);
         }
     });
 
@@ -40,6 +40,21 @@ io.on('connection', function(socket) {
         console.log("New deck!");
         deck = deckObject;
         io.emit('updated-deck', { deck: deck });
+    });
+
+    socket.on('action-card-against', function(data) {
+        var player = data['player_id']
+        var recipients = data['recipients'];  //List of player id's. Can just be one player id.
+        var card = data['card'];
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].id in recipients) {
+                if (card.title == "Debt Collector") {
+                    clients[i].emit('debt-collector', { from: player, amount: 5 })
+                } else {
+                    console.log("Not doing anything, but still got here.");
+                }
+            }
+        }
     });
 
     socket.on('action-card', function(data) {
@@ -100,7 +115,7 @@ io.on('connection', function(socket) {
             index = 0;
         }
         console.log("Its " + players[index].firstName + "'s turn");
-        clients[index].emit('my-turn');
+        clients[index].emit('my-turn', { updatedPlayer: player });
     });
 });
 
