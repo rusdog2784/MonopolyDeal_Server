@@ -42,17 +42,24 @@ io.on('connection', function(socket) {
         io.emit('updated-deck', { deck: deck });
     });
 
-    socket.on('action-card-against', function(data) {
-        var player = data['player_id']
+    socket.on('action-card-played-against', function(data) {
+        var player = data['from']
         var recipients = data['recipients'];  //List of player id's. Can just be one player id.
         var card = data['card'];
         for (var i = 0; i < players.length; i++) {
-            if (players[i].id in recipients) {
-                if (card.title == "Debt Collector") {
-                    clients[i].emit('debt-collector', { from: player, amount: 5 })
-                } else {
-                    console.log("Not doing anything, but still got here.");
-                }
+            if (recipients.indexOf(players[i].id) != -1) {
+                clients[i].emit('action-card-action-required', { card: card, from: player });
+            }
+        }
+    });
+
+    socket.on('action-card-action-for', function(data) {
+        var from = data['from'];
+        var to = data['to'];
+        var cards = data['cards'];
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].id == to.id) {
+                clients[i].emit('action-card-result', { cards: cards, from: from });
             }
         }
     });
